@@ -1,0 +1,68 @@
+--- makefile.unix.orig	Sat Aug 17 01:29:56 2013
++++ makefile.unix	Sat Aug 17 01:48:26 2013
+@@ -5,20 +5,14 @@
+ 
+ 
+ INCLUDEPATHS= \
+- -I"/usr/include" \
+- -I"/usr/local/include/wx-2.9" \
+- -I"/usr/local/lib/wx/include/gtk2-unicode-debug-static-2.9"
++ -I"/usr/local/include" \
++ -I"/usr/local/include/db4" \
++ -I"/usr/local/include/wx"
+ 
+ LIBPATHS= \
+  -L"/usr/lib" \
+  -L"/usr/local/lib"
+ 
+-WXLIBS= \
+- -Wl,-Bstatic \
+-   -l wx_gtk2ud-2.9 \
+- -Wl,-Bdynamic \
+-   -l gtk-x11-2.0 -l SM
+-
+ LIBS= \
+  -Wl,-Bstatic \
+    -l boost_system -l boost_filesystem \
+@@ -27,20 +21,19 @@
+    -l crypto \
+    -l gthread-2.0
+ 
+-WXDEFS=-D__WXGTK__ -DNOPCH
+-DEBUGFLAGS=-g -D__WXDEBUG__
+-CFLAGS=-O2 -Wno-invalid-offsetof -Wformat $(DEBUGFLAGS) $(WXDEFS) $(INCLUDEPATHS)
++DEBUGFLAGS=-g
++CFLAGS=-O2 -Wno-invalid-offsetof -Wformat $(DEBUGFLAGS) $(INCLUDEPATHS)
+ HEADERS=headers.h strlcpy.h serialize.h uint256.h util.h key.h bignum.h base58.h \
+     script.h db.h net.h irc.h main.h rpc.h uibase.h ui.h init.h sha.h
+ 
+ 
+-all: bitcoin
++all: ppcoin
+ 
+ 
+ headers.h.gch: headers.h $(HEADERS)
+ 	g++ -c $(CFLAGS) -o $@ $<
+ 
+-obj/%.o: %.cpp $(HEADERS) headers.h.gch
++obj/%.o: %.cpp $(HEADERS)
+ 	g++ -c $(CFLAGS) -o $@ $<
+ 
+ obj/sha.o: sha.cpp sha.h
+@@ -56,14 +49,14 @@
+     obj/rpc.o \
+     obj/init.o
+ 
+-bitcoin: $(OBJS) obj/ui.o obj/uibase.o obj/sha.o
++ppcoin: $(OBJS) obj/ui.o obj/uibase.o obj/sha.o
+ 	g++ $(CFLAGS) -o $@ $(LIBPATHS) $^ $(WXLIBS) $(LIBS)
+ 
+ 
+ obj/nogui/%.o: %.cpp $(HEADERS)
+ 	g++ -c $(CFLAGS) -DwxUSE_GUI=0 -o $@ $<
+ 
+-bitcoind: $(OBJS:obj/%=obj/nogui/%) obj/sha.o
++ppcoind: $(OBJS:obj/%=obj/nogui/%) obj/sha.o
+ 	g++ $(CFLAGS) -o $@ $(LIBPATHS) $^ -l wx_baseud-2.9 $(LIBS)
+ 
+ 
