@@ -1,0 +1,13 @@
+#!/bin/sh
+#
+# $OpenBSD$
+
+daemon="${TRUEPREFIX}/bin/ppcoind"
+daemon_flags="-daemon -port=8334"
+daemon_user="_ppcoin"
+
+. /etc/rc.d/rc.subr
+
+rc_reload=NO
+
+rc_cmd $1

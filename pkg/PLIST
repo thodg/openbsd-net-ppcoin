@@ -1,2 +1,12 @@
 @comment $OpenBSD$
+@newgroup _ppcoin:781
+@newuser _ppcoin:781:781:daemon:Peercoin Account:/var/ppcoin:/sbin/nologin
 @bin bin/ppcoind
+@rcscript ${RCDIR}/ppcoind
+@mode 750
+@owner _ppcoin
+@group _ppcoin
+@sample /var/ppcoin/
+@mode 700
+@sample /var/ppcoin/.bitcoin/
+@exec-add sh -c 'test -f /var/ppcoin/.bitcoin/bitcoin.conf || { echo rpcuser=$(dd if=/dev/random bs=12 count=1 2>/dev/null | b64encode - | tail -n 2 | head -n 1); echo rpcpassword=$(dd if=/dev/random bs=48 count=1 2>/dev/null | b64encode - | tail -n 2 | head -n 1); } > /var/ppcoin/.bitcoin/bitcoin.conf && chmod 400 /var/ppcoin/.bitcoin/bitcoin.conf && chown _ppcoin:_ppcoin /var/ppcoin/.bitcoin/bitcoin.conf'

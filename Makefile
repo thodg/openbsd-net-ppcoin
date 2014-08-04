@@ -25,7 +25,7 @@ WANTLIB += boost_filesystem-mt boost_program_options-mt boost_system-mt
 WANTLIB += boost_thread-mt c crypto m miniupnpc pthread
 WANTLIB += ssl stdc++ z leveldb
 
-MASTER_SITES =		https://github.com/ppcoin/ppcoin/tarball/v${V}/
+MASTER_SITES =		https://github.com/ppcoin/ppcoin/archive/v${V}/
 
 LIB_DEPENDS =		devel/boost>=1.53 \
 			net/miniupnp/miniupnpc \
