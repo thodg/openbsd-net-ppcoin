@@ -1,68 +1,64 @@
---- makefile.unix.orig	Sat Aug 17 01:29:56 2013
-+++ makefile.unix	Sat Aug 17 01:48:26 2013
-@@ -5,20 +5,14 @@
- 
- 
- INCLUDEPATHS= \
-- -I"/usr/include" \
-- -I"/usr/local/include/wx-2.9" \
-- -I"/usr/local/lib/wx/include/gtk2-unicode-debug-static-2.9"
-+ -I"/usr/local/include" \
-+ -I"/usr/local/include/db4" \
-+ -I"/usr/local/include/wx"
- 
- LIBPATHS= \
-  -L"/usr/lib" \
-  -L"/usr/local/lib"
- 
--WXLIBS= \
-- -Wl,-Bstatic \
--   -l wx_gtk2ud-2.9 \
-- -Wl,-Bdynamic \
--   -l gtk-x11-2.0 -l SM
--
+--- makefile.unix.orig	Thu Sep 22 22:54:42 2011
++++ makefile.unix	Fri Aug  1 12:49:38 2014
+@@ -15,10 +15,10 @@
+ # for boost 1.37, add -mt to the boost libraries
  LIBS= \
   -Wl,-Bstatic \
-    -l boost_system -l boost_filesystem \
-@@ -27,20 +21,19 @@
-    -l crypto \
-    -l gthread-2.0
+-   -l boost_system \
+-   -l boost_filesystem \
+-   -l boost_program_options \
+-   -l boost_thread \
++   -l boost_system-mt \
++   -l boost_filesystem-mt \
++   -l boost_program_options-mt \
++   -l boost_thread-mt \
+    -l db_cxx \
+    -l ssl \
+    -l crypto
+@@ -32,7 +32,6 @@
+  -Wl,-Bdynamic \
+    -l gthread-2.0 \
+    -l z \
+-   -l dl \
+    -l pthread
  
--WXDEFS=-D__WXGTK__ -DNOPCH
--DEBUGFLAGS=-g -D__WXDEBUG__
--CFLAGS=-O2 -Wno-invalid-offsetof -Wformat $(DEBUGFLAGS) $(WXDEFS) $(INCLUDEPATHS)
-+DEBUGFLAGS=-g
-+CFLAGS=-O2 -Wno-invalid-offsetof -Wformat $(DEBUGFLAGS) $(INCLUDEPATHS)
- HEADERS=headers.h strlcpy.h serialize.h uint256.h util.h key.h bignum.h base58.h \
-     script.h db.h net.h irc.h main.h rpc.h uibase.h ui.h init.h sha.h
+ 
+@@ -79,7 +78,7 @@
+     cryptopp/obj/cpu.o
  
  
 -all: bitcoin
-+all: ppcoin
++all: ppcoind
  
  
- headers.h.gch: headers.h $(HEADERS)
- 	g++ -c $(CFLAGS) -o $@ $<
+ obj/%.o: %.cpp $(HEADERS)
+@@ -88,24 +87,24 @@
+ cryptopp/obj/%.o: cryptopp/%.cpp
+ 	$(CXX) -c $(CXXFLAGS) -O3 -o $@ $<
  
--obj/%.o: %.cpp $(HEADERS) headers.h.gch
-+obj/%.o: %.cpp $(HEADERS)
- 	g++ -c $(CFLAGS) -o $@ $<
- 
- obj/sha.o: sha.cpp sha.h
-@@ -56,14 +49,14 @@
-     obj/rpc.o \
-     obj/init.o
- 
--bitcoin: $(OBJS) obj/ui.o obj/uibase.o obj/sha.o
-+ppcoin: $(OBJS) obj/ui.o obj/uibase.o obj/sha.o
- 	g++ $(CFLAGS) -o $@ $(LIBPATHS) $^ $(WXLIBS) $(LIBS)
+-bitcoin: $(OBJS) obj/ui.o obj/uibase.o
++ppcoin: $(OBJS) obj/ui.o obj/uibase.o
+ 	$(CXX) $(CXXFLAGS) -o $@ $^ $(WXLIBS) $(LIBS)
  
  
  obj/nogui/%.o: %.cpp $(HEADERS)
- 	g++ -c $(CFLAGS) -DwxUSE_GUI=0 -o $@ $<
+ 	$(CXX) -c $(CXXFLAGS) -o $@ $<
  
--bitcoind: $(OBJS:obj/%=obj/nogui/%) obj/sha.o
-+ppcoind: $(OBJS:obj/%=obj/nogui/%) obj/sha.o
- 	g++ $(CFLAGS) -o $@ $(LIBPATHS) $^ -l wx_baseud-2.9 $(LIBS)
+-bitcoind: $(OBJS:obj/%=obj/nogui/%)
+-	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS)
++ppcoind: $(OBJS:obj/%=obj/nogui/%)
++	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS)
  
+ obj/test/test_bitcoin.o: $(wildcard test/*.cpp) $(HEADERS)
+ 	$(CXX) -c $(CFLAGS) -o $@ test/test_bitcoin.cpp
  
+-test_bitcoin: obj/test/test_bitcoin.o $(filter-out obj/nogui/init.o,$(OBJS:obj/%=obj/nogui/%))
++test_ppcoin: obj/test/test_bitcoin.o $(filter-out obj/nogui/init.o,$(OBJS:obj/%=obj/nogui/%))
+ 	$(CXX) $(CXXFLAGS) -o $@ $(LIBPATHS) $^ -Wl,-Bstatic -lboost_unit_test_framework $(LIBS)
+ 
+ clean:
+-	-rm -f bitcoin bitcoind test_bitcoin
++	-rm -f ppcoin ppcoind test_ppcoin
+ 	-rm -f obj/*.o
+ 	-rm -f obj/nogui/*.o
+ 	-rm -f obj/test/*.o
